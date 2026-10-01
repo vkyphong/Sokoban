@@ -120,7 +120,8 @@ class PlaybackTests(unittest.TestCase):
 
 
 class CompetitiveTests(unittest.TestCase):
-    def setUp(self): self.initial = MapLoader.load(COMPETITIVE_MAP, competitive=True)
+    def setUp(self):
+        self.initial = MapLoader.load(Path(__file__).parent / 'fixtures' / 'competitive_map.txt', competitive=True)
 
     def test_fixture_steps_ownership_scores(self):
         for limit in (1, 2, 6, 7, 50, 999999999):

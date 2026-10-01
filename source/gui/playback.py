@@ -60,3 +60,18 @@ class PlaybackController(Generic[T]):
             self.index += 1
         if self.finished:
             self.pause()
+
+    def facing(self, attribute: str) -> str:
+        """Facing of the displayed snapshot, independent of navigation order.
+
+        Preserve the last movement direction across WAIT/stationary steps.
+        Rewinding restores that historical facing rather than reversing it.
+        """
+        directions = {(-1, 0): 'up', (1, 0): 'down', (0, -1): 'left', (0, 1): 'right'}
+        for index in range(self.index, 0, -1):
+            before = getattr(self.states[index - 1], attribute)
+            after = getattr(self.states[index], attribute)
+            delta = (after[0] - before[0], after[1] - before[1])
+            if delta in directions:
+                return directions[delta]
+        return 'down'

@@ -1,8 +1,9 @@
 # Sokoban GUI / game portion
 
 Three Pygame modes share the supplied PNG artwork, map loader, renderer,
-buttons, fonts and configuration. No graded search or competitive AI
-algorithms are implemented.
+buttons, fonts and configuration. The interface uses readable Verdana with
+portable font fallbacks, statistic cards and directional player sprites.
+No graded search or competitive AI algorithms are implemented.
 
 ## Launch
 
@@ -22,18 +23,22 @@ resizable with a minimum layout of 920 x 740. Esc returns to the menu.
 - **Manual Play:** WASD/arrows move exactly one cell per key press. Collision,
   bounds, pushing, move/push counts, solved movement lock, victory overlay,
   restart and menu navigation are implemented.
-- **AI Solver (Requirement 5):** choose UCS or A*, then Solve. **GUI DEMO: ON**
-  uses a fixed seven-action solution for the bundled map; it is not either
-  selected algorithm. Click that toggle to use the teammate solver instead;
-  the current placeholders show useful unavailable errors. Action count,
-  total cost, statuses, automatic playback and restart are implemented.
+- **AI Solver (Requirement 5):** choose UCS or A*, then Solve. Calls the
+  corresponding teammate solver directly; the current placeholders show useful
+  unavailable errors. Action count, total cost, statuses, automatic playback
+  and restart are implemented. No demo toggle or scripted solution is exposed.
 - **Competitive (Requirement 8):** enter a positive maximum step count, then
-  Start. **GUI DEMO: ON** replays paired scripted actions, ownership changes,
-  neutral/cyan/green boxes, colored crates on goals and scores. It ends after
-  seven steps or the entered limit, whichever comes first. The early finish
-  explicitly comes from `finished=True` in the fixture. Toggle to **TEAM
-  AGENTS** to use the teammate runner; its current placeholder reports that
-  integration is pending. There are no human controls for either agent.
+  Start. Calls the teammate runner directly; its current placeholder reports
+  that integration is pending. Neutral/cyan/green boxes, goal variants, scores,
+  paired-step playback and match results remain supported through the runner
+  contract. There are no human controls for either agent and no demo toggle.
+
+Manual movement switches among the supplied `player1_up/down/left/right`
+sprites, including turning toward a blocked cell. Playback derives each
+agent's facing from the history of the displayed snapshot, preserving the
+last facing when stationary and restoring it correctly when rewinding.
+Restart resets facing downward. Missing directional PNGs fall back to the
+base player sprite with a warning.
 
 AI playback controls: **Space** pauses/resumes; **Right** advances one
 snapshot; **Left** goes back one snapshot. Stepping pauses automatic playback
@@ -52,7 +57,7 @@ Sokoban/
 │   ├── __init__.py
 │   ├── main.py
 │   ├── config.py
-│   ├── assets/                     unchanged copies of all 11 supplied PNGs
+│   ├── assets/                     original artwork plus 8 directional PNGs
 │   ├── game/
 │   │   ├── __init__.py
 │   │   ├── state.py
@@ -88,12 +93,15 @@ Sokoban/
 │       └── competitive/competitive_map.txt
 ├── tests/
 │   ├── test_game.py
-│   └── test_ui.py
+│   ├── test_ui.py
+│   └── fixtures/competitive_map.txt fixed map used only by automated tests
 └── artifacts/                      rendered screenshots from visual checks
 ```
 
 Asset names: floor, wall, goal, box, box_on_goal, player1, player2,
 box_agent1, box_agent2, box_agent1_on_goal, box_agent2_on_goal (all `.png`).
+Directional assets: player1_up, player1_down, player1_left, player1_right,
+player2_up, player2_down, player2_left, player2_right (all `.png`).
 Missing/corrupt PNGs produce a logged warning and visible fallback, cached
 just like real sprites. No new asset images were generated.
 
@@ -122,7 +130,7 @@ Use `SolverResult([], [], 0)` for no solution. A zero-action solved initial
 state is represented by `SolverResult([], [initial_state], 0)`.
 Exceptions become GUI error messages. Implementations must avoid Pygame
 calls: the GUI executes them in a daemon worker and consumes results on
-the main thread. Selecting an algorithm or changing demo mode resets its
+the main thread. Selecting an algorithm resets its
 previous playback so no stale algorithm result is presented.
 
 ### Agent 1 and Agent 2
@@ -200,7 +208,10 @@ and competitive result. A normal Windows desktop startup was also run.
 
 Real UCS, A*, heuristics, experiments, competitive formulation, conflict
 resolution and both decision algorithms remain teammate responsibilities.
-Mocks are fixed scripts for the supplied maps, not general solvers.
+Mocks remain fixed test fixtures, not general solvers. They are not imported
+or selected by the production GUI. The competitive fixture uses the small
+map in `tests/fixtures`, independently of the larger user-editable application
+map. Tests inject fixtures at the teammate interfaces to verify playback.
 macOS compatibility is designed through Pygame/pathlib and portable Python;
 macOS 13.7.8 Intel execution has not been tested here.
 

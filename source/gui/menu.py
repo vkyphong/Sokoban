@@ -20,11 +20,11 @@ class MainMenu(Screen):
         surface, hud = self.app.surface, self.app.hud
         surface.fill(BG)
         width, height = surface.get_size()
-        pygame.draw.circle(surface, (240, 219, 178), (width // 2, height // 2 - 85), 230)
+        pygame.draw.circle(surface, (239, 225, 199), (width // 2, height // 2 - 85), 230)
         for name, x in [('player1', width // 2 - 185), ('player2', width // 2 + 60)]:
             surface.blit(self.app.assets.get(name, 125), (x, height // 2 - 230))
         title = hud.hero.render('SOKOBAN', True, (65, 49, 40))
         surface.blit(title, title.get_rect(center=(width // 2, height // 2 - 72)))
         for button in self.buttons.values(): button.draw(surface, hud.font)
-        label = hud.small.render('Push. Plan. Compete.  |  AI modes include labeled GUI demos.', True, MUTED)
+        label = hud.small.render('Push. Plan. Compete.', True, MUTED)
         surface.blit(label, label.get_rect(center=(width // 2, height - 40)))

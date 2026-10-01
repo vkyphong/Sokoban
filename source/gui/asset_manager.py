@@ -19,6 +19,12 @@ class AssetManager:
                     self.originals[name] = pygame.image.load(str(self.directory / f'{name}.png')).convert_alpha()
                 except (OSError, pygame.error) as exc:
                     logging.warning('Asset %s: %s; using visible debugging fallback.', name, exc)
+                    if name.startswith(('player1_', 'player2_')):
+                        # Directional artwork is optional: reuse the original
+                        # player rather than replace it with a colored square.
+                        self.originals[name] = self.get(name.split('_')[0], 64)
+                        self.scaled[key] = pygame.transform.smoothscale(self.originals[name], (size, size))
+                        return self.scaled[key]
                     surface = pygame.Surface((64, 64), pygame.SRCALPHA)
                     colors = {'floor': (237, 212, 165), 'wall': (158, 109, 59),
                               'player1': (55, 181, 226), 'player2': (76, 170, 84)}

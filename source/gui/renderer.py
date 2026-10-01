@@ -14,7 +14,8 @@ class SokobanRenderer:
         row, column = position
         return self.origin[0] + column * self.tile_size, self.origin[1] + row * self.tile_size
 
-    def draw(self, surface: pygame.Surface, state: GameState | CompetitiveState, area: pygame.Rect):
+    def draw(self, surface: pygame.Surface, state: GameState | CompetitiveState,
+             area: pygame.Rect, facings: tuple[str, ...] = ('down', 'down')):
         fit = max(1, min((area.width - PADDING) // state.columns, (area.height - PADDING) // state.rows))
         self.tile_size = next((size for size in TILE_SIZES if size <= fit), fit)
         width, height = state.columns * self.tile_size, state.rows * self.tile_size
@@ -31,10 +32,10 @@ class SokobanRenderer:
         for pos in sorted(state.walls): tile('wall', pos)
         if isinstance(state, GameState):
             for pos in sorted(state.boxes): tile('box_on_goal' if pos in state.goals else 'box', pos)
-            tile('player1', state.player)
+            tile(f'player1_{facings[0]}', state.player)
         else:
             for box in state.boxes:
                 name = 'box' if box.owner is None else f'box_agent{box.owner}'
                 tile(name + ('_on_goal' if box.position in state.goals else ''), box.position)
-            tile('player1', state.agent1)
-            tile('player2', state.agent2)
+            tile(f'player1_{facings[0]}', state.agent1)
+            tile(f'player2_{facings[1]}', state.agent2)

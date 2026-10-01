@@ -1,5 +1,5 @@
 import pygame
-from ..config import INK, ACCENT
+from ..config import INK, ACCENT, PANEL
 
 
 class Button:
@@ -15,9 +15,11 @@ class Button:
 
     def draw(self, surface, font):
         hover = self.rect.collidepoint(pygame.mouse.get_pos())
-        color = (209, 204, 192) if not self.enabled else ACCENT if self.selected else (
-            (235, 188, 111) if hover else (231, 204, 160))
-        pygame.draw.rect(surface, (196, 168, 128), self.rect.move(0, 3), border_radius=10)
-        pygame.draw.rect(surface, color, self.rect, border_radius=10)
-        label = font.render(self.label, True, (255, 255, 255) if self.selected else INK)
+        primary = self.selected or self.label in ('SOLVE', 'START', 'PLAY AGAIN', 'MANUAL PLAY')
+        color = (219, 214, 202) if not self.enabled else (
+            (35, 121, 144) if hover else ACCENT) if primary else (
+            (249, 228, 189) if hover else PANEL)
+        pygame.draw.rect(surface, (207, 188, 162), self.rect.move(0, 3), border_radius=12)
+        pygame.draw.rect(surface, color, self.rect, border_radius=12)
+        label = font.render(self.label, True, (255, 255, 255) if primary and self.enabled else INK)
         surface.blit(label, label.get_rect(center=self.rect.center))
