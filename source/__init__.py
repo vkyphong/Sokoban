@@ -1,0 +1,1 @@
+"""Sokoban GUI project."""
